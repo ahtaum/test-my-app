@@ -2,21 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\Http\Requests\AddCarRequest;
-use App\Models\Car;
+use App\Repository\Cars\CarServiceInterface;
 
 class CarController extends Controller
 {
+    private $carService;
+
+    public function __construct(CarServiceInterface $carService) {
+        $this->carService = $carService;
+    }
+
     public function getCars() {
         try {
-            $cars = Car::all();
+            $cars = $this->carService->getAllCars();
 
             return response()->json([
                 'code' => 200,
                 'status' => 'success',
-                'total' => $cars->count(),
+                'total' => count($cars),
                 'data' => $cars
             ]);
         } catch (\Exception $e) {
@@ -30,7 +34,7 @@ class CarController extends Controller
 
     public function getCar($id) {
         try {
-            $car = Car::findOrFail($id);
+            $car = $this->carService->getCar($id);
 
             return response()->json([
                 'code' => 200,
@@ -48,11 +52,8 @@ class CarController extends Controller
 
     public function addCar(AddCarRequest $request) {
         try {
-            $car = new Car();
-            $car->machine = $request->machine;
-            $car->capacity = $request->capacity;
-            $car->type = $request->type;
-            $car->save();
+            $data = $request->validated();
+            $car = $this->carService->createCar($data);
 
             return response()->json([
                 'code' => 200,
@@ -71,11 +72,8 @@ class CarController extends Controller
 
     public function updateCar(AddCarRequest $request, $id) {
         try {
-            $car = Car::findOrFail($id);
-            $car->machine = $request->machine;
-            $car->capacity = $request->capacity;
-            $car->type = $request->type;
-            $car->save();
+            $data = $request->validated();
+            $car = $this->carService->updateCar($data, $id);
 
             return response()->json([
                 'code' => 200,
@@ -94,13 +92,13 @@ class CarController extends Controller
 
     public function deleteCar($id) {
         try {
-            $car = Car::findOrFail($id);
-            $car->delete();
+            $result = $this->carService->deleteCar($id);
 
             return response()->json([
                 'code' => 200,
                 'status' => 'success',
-                'message' => 'Car deleted successfully'
+                'message' => 'Car deleted successfully',
+                'result_deleted_data' => $result
             ]);
         } catch (\Exception $e) {
             return response()->json([

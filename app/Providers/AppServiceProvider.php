@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+use App\Repository\Cars\CarServiceInterface;
+use App\Repository\Cars\CarService;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -13,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind(CarServiceInterface::class, CarService::class);
     }
 
     /**
