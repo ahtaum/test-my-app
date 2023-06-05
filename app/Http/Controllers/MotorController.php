@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\Http\Requests\MotorRequest;
-use App\Models\Motor;
+use App\Repository\Motors\MotorServiceInterface;
 
 class MotorController extends Controller
 {
+    private $motorService;
+
+    public function __construct(MotorServiceInterface $motorService) {
+        $this->motorService = $motorService;
+    }
+
     public function getMotors() {
         try {
-            $motors = Motor::all();
+            $motors = $this->motorService->getAllMotors();
 
             return response()->json([
                 'code' => 200,
@@ -30,7 +34,7 @@ class MotorController extends Controller
 
     public function getMotor($id) {
         try {
-            $motor = Motor::findOrFail($id);
+            $motor = $this->motorService->getMotorById($id);
 
             return response()->json([
                 'code' => 200,
@@ -48,11 +52,8 @@ class MotorController extends Controller
 
     public function addMotor(MotorRequest $request) {
         try {
-            $motor = new Motor();
-            $motor->machine = $request->machine;
-            $motor->suspension_type = $request->suspension_type;
-            $motor->transmision_type = $request->transmision_type;
-            $motor->save();
+            $data = $request->validated();
+            $motor = $this->motorService->createMotor($data);
 
             return response()->json([
                 'code' => 200,
@@ -71,11 +72,8 @@ class MotorController extends Controller
 
     public function updateMotor(MotorRequest $request, $id) {
         try {
-            $motor = Motor::findOrFail($id);
-            $motor->machine = $request->machine;
-            $motor->suspension_type = $request->suspension_type;
-            $motor->transmision_type = $request->transmision_type;
-            $motor->save();
+            $data = $request->validated();
+            $motor = $this->motorService->updateMotor($id, $data);
 
             return response()->json([
                 'code' => 200,
@@ -94,8 +92,7 @@ class MotorController extends Controller
 
     public function deleteMotor($id) {
         try {
-            $motor = Motor::findOrFail($id);
-            $motor->delete();
+            $this->motorService->deleteMotor($id);
 
             return response()->json([
                 'code' => 200,
