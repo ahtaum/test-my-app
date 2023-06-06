@@ -25,7 +25,9 @@ Route::controller(UserController::class)->prefix("users")->group(function () {
 Route::middleware('custom.auth')->group(function () {
     Route::controller(VehicleController::class)->prefix("vehicles")->group(function () {
         Route::get("/", "getVehicles");
-    
+        Route::get("/reports", "generateReport");
+        
+        Route::post("/add", "addVehicle");
         Route::delete("/sold/{id}", "sold");
     });
 

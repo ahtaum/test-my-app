@@ -25,4 +25,8 @@ class Vehicle extends Model
     public function car() {
         return $this->hasOne(Car::class);
     }
+
+    public function sales() {
+        return $this->hasOne(Sales::class, 'vehicle_id');
+    }
 }
